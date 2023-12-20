@@ -1,0 +1,126 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct TrieNode {
+struct TrieNode* children[100];
+int isEndOfWord;
+};
+
+struct TrieNode* createNode() {
+struct TrieNode* node = (struct TrieNode*)malloc(sizeof(struct TrieNode));
+node->isEndOfWord = 0;
+for (int i = 0; i < 100; i++) {
+node->children[i] = NULL;
+}
+return node;
+}
+
+void insert(struct TrieNode* root, const char* word) {
+struct TrieNode* curr = root;
+for (int i = 0; i < strlen(word); i++) {
+int index = word[i] - 'a';
+if (curr->children[index] == NULL) {
+curr->children[index] = createNode();
+}
+curr = curr->children[index];
+}
+curr->isEndOfWord = 1;
+}
+
+int search(struct TrieNode* root, const char* word) {
+struct TrieNode* curr = root;
+for (int i = 0; i < strlen(word); i++) {
+int index = word[i] - 'a';
+if (curr->children[index] == NULL) {
+return 0;
+}
+curr = curr->children[index];
+}
+return curr != NULL && curr->isEndOfWord;
+}
+
+void sortWordsByLength(char** words, int size) {
+for (int i = 0; i < size - 1; i++) {
+for (int j = 0; j < size - i - 1; j++) {
+if (strlen(words[j]) < strlen(words[j + 1])) {
+char* temp = words[j];
+words[j] = words[j + 1];
+words[j + 1] = temp;
+}
+}
+}
+}
+
+void findPrefix(struct TrieNode* root, const char* word, char** concatWords, int* count) {
+for (int i = 1; i < strlen(word); i++) {
+char* prefix = (char*)malloc((i + 1) * sizeof(char));
+strncpy(prefix, word, i);
+prefix[i] = '\0';
+char* suffix = (char*)malloc((strlen(word) - i + 1) * sizeof(char));
+strncpy(suffix, word + i, strlen(word) - i);
+suffix[strlen(word) - i] = '\0';
+if (search(root, prefix)) {
+if (search(root, suffix)) {
+concatWords[*count] = (char*)malloc((strlen(word) + 1) * sizeof(char));
+strcpy(concatWords[*count], word);
+(*count)++;
+break;
+}
+findPrefix(root, suffix, concatWords, count);
+}
+free(prefix);
+free(suffix);
+}
+}
+
+void getConcatWords(const char* file) {
+FILE* fp = fopen(file, "r");
+if (fp == NULL) {
+printf("Error opening file.\n");
+return;
+}
+int wordCount = 0;
+char** words = (char**)malloc(1000 * sizeof(char*));
+char word[100];
+while (fscanf(fp, "%s", word) != EOF) {
+words[wordCount] = (char*)malloc((strlen(word) + 1) * sizeof(char));
+strcpy(words[wordCount], word);
+wordCount++;
+}
+fclose(fp);
+
+struct TrieNode* root = createNode();
+for (int i = 0; i < wordCount; i++) {
+insert(root, words[i]);
+}
+
+sortWordsByLength(words, wordCount);
+
+char** concatWords = (char**)malloc(1000 * sizeof(char*));
+int count = 0;
+for (int i = 0; i < wordCount; i++) {
+findPrefix(root, words[i], concatWords, &count);
+if (count > 0) {
+break;
+}
+}
+
+printf("Longest Compound Word is: %s\n", concatWords[0]);
+printf("Second Longest Compound Word is: %s\n", concatWords[1]);
+
+for (int i = 0; i < wordCount; i++) {
+free(words[i]);
+}
+free(words);
+for (int i = 0; i < count; i++) {
+free(concatWords[i]);
+}
+free(concatWords);
+}
+
+int main() {
+const char* file = "input_02.txt";
+getConcatWords(file);
+return 0;
+}
