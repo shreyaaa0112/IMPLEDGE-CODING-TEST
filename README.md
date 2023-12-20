@@ -22,11 +22,11 @@ Functions created and their uses-
 **search:** A search function is then put into the code to read if there is an existing word in the trie 
 It also states that we can use this function for the lowercase letters.
 
-**sort:** Then we use bubble sort to put all the words in lengthwise order in descending order so as to easily find the longest and second longest word 
+**Bsort:** Then we use bubble sort to put all the words in lengthwise order in descending order so as to easily find the longest and second longest word 
 
-**findPrefix**: usedto search for words that can be split into two parts (prefix and suffix) such that both parts are present in a given Trie.
+**findPrefix**: usedto search for words that can be split into two parts (prefix and suffix) such that both parts are present in a given Trie. This will help us in choosing only the Compound words and no other simple words.
 
-**getCompoundWords:** used to find the concatenated words in the file. 
+**getCompoundWords:** used to find the concatenated words from the file. 
 
 We then open the file and process it accordingly 
 
